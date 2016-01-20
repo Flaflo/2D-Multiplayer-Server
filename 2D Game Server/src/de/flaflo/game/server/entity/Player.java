@@ -76,9 +76,8 @@ public class Player implements Runnable {
 						out.writeUTF(this.getName());
 						
 						Server.log(this.getName() + " hat das Spiel verlassen.");
-						
 					} catch (IOException e1) {
-						e1.printStackTrace();
+						Server.log(this.getName() + " hat das Spiel verlassen.");
 					}
 				}
 			}
