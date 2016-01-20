@@ -6,9 +6,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Instant;
+import java.util.Date;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.flaflo.game.server.entity.Player;
+import sun.util.calendar.CalendarUtils;
 
 /**
  * 			  TODO
@@ -23,6 +26,7 @@ import de.flaflo.game.server.entity.Player;
  * @author Flaflo
  *
  */
+@SuppressWarnings("restriction")
 public class Server implements Runnable {
 
 	public static void main(String[] args) throws IOException {
@@ -52,6 +56,8 @@ public class Server implements Runnable {
 		if (socket == null)
 			socket = new ServerSocket(PORT);
 			
+		log("Server gestartet (Port: " + PORT + ")");
+
 		this.run();
 	}
 
@@ -99,12 +105,26 @@ public class Server implements Runnable {
 				
 				this.players.add(new Player(soc, name, new Color(cRed, cGreen, cBlue), x, y));
 				
+				log(name + " betritt das Spiel");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	@SuppressWarnings("deprecation")
+	public static void log(String text) {
+	    Date date = Date.from(Instant.now());
+		
+		StringBuilder sb = new StringBuilder();
+		
+		CalendarUtils.sprintf0d(sb, date.getHours(), 2).append(':');
+	    CalendarUtils.sprintf0d(sb, date.getMinutes(), 2).append(':');
+	    CalendarUtils.sprintf0d(sb, date.getSeconds(), 2);
+	    
+		System.out.println("{[" + sb.toString() + "] Server}: " + text);
+	}
+	
 	public CopyOnWriteArrayList<Player> getPlayers() {
 		return players;
 	}

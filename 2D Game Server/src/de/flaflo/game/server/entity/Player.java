@@ -74,6 +74,9 @@ public class Player implements Runnable {
 						DataOutputStream out = new DataOutputStream(p.getSocket().getOutputStream());
 						out.writeUTF("removePlayer");
 						out.writeUTF(this.getName());
+						
+						Server.log(this.getName() + " hat das Spiel verlassen.");
+						
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
