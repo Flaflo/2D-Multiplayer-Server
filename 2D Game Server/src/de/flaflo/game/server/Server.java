@@ -47,31 +47,11 @@ public class Server implements Runnable {
 		this.start();
 	}
 
-	public Player getPlayerByName(String name) {
-		for (Player p : this.players) {
-			if (p.getName().equals(name)) {
-				return p;
-			}
-		}
-		
-		return null;
-	}
-	
-	public Player getPlayerByID(int id) {
-		for (Player p : this.players) {
-			if (p.getId() == id) {
-				return p;
-			}
-		}
-		
-		return null;
-	}
-	
 	public synchronized void start() throws IOException {
 		if (socket == null)
 			socket = new ServerSocket(PORT);
 			
-		log("Server gestartet (Port: " + PORT + ")");
+		log("Server started (Port: " + PORT + ")");
 
 		this.run();
 	}
@@ -90,7 +70,8 @@ public class Server implements Runnable {
 				this.sendPacketToAll(new S03PacketAddPlayer(player));
 				
 				players.add(player);
-				log(player.getName() + " betritt das Spiel");
+				
+				log(player.getName() + " joined the Game.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -121,6 +102,26 @@ public class Server implements Runnable {
 	    CalendarUtils.sprintf0d(sb, date.getSeconds(), 2);
 	    
 		System.out.println("{[" + sb.toString() + "] Server}: " + text);
+	}
+	
+	public Player getPlayerByName(String name) {
+		for (Player p : this.players) {
+			if (p.getName().equals(name)) {
+				return p;
+			}
+		}
+		
+		return null;
+	}
+	
+	public Player getPlayerByID(int id) {
+		for (Player p : this.players) {
+			if (p.getId() == id) {
+				return p;
+			}
+		}
+		
+		return null;
 	}
 	
 	public static Server getServer() {
