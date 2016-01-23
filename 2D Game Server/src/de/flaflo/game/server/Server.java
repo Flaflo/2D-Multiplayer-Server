@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.flaflo.game.server.entity.Player;
@@ -49,9 +50,52 @@ public class Server implements Runnable {
 		instance = this;
 		
 		players = new CopyOnWriteArrayList<Player>();
+		
+		new Thread() {
+			@SuppressWarnings("resource")
+			@Override
+			public void run() {
+				while (true) {
+					Scanner scanner = new Scanner(System.in);
+					String line = scanner.nextLine();
+					String[] args = line.split(" ");
+
+					if (line.startsWith("teleport")) {
+						if (args.length != 4) {
+							log("Richtige Syntax: teleport <Spielername> <X> <Y>");
+							return;
+						}
+						try {
+							Player targetPlayer = getPlayerByName(args[1]);
+							
+							if (targetPlayer == null) {
+								log("Spieler konnte nicht gefunden werden.");
+								return;
+							}
+							
+							targetPlayer.teleport(Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+						} catch (Exception ex) {
+							log("Ungültige Zeichen erkannt.");
+						}
+					} else
+						log("Diesen Command kenne ich nicht.");
+				}
+			}
+		}.start();
+		
 		this.start();
 	}
 
+	public Player getPlayerByName(String name) {
+		for (Player p : this.players) {
+			if (p.getName().equals(name)) {
+				return p;
+			}
+		}
+		
+		return null;
+	}
+	
 	public synchronized void start() throws IOException {
 		if (socket == null)
 			socket = new ServerSocket(PORT);

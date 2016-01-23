@@ -83,7 +83,33 @@ public class Player implements Runnable {
 			}
 		}
 	}
+	
+	/**
+	 * Teleportiert einen Spieler an eine Position
+	 * @param x X Positions des Teleports
+	 * @param y Y Positions des Teleports
+	 */
+	public void teleport(int x, int y) {
+		try {
+			DataOutputStream out = new DataOutputStream(getSocket().getOutputStream());
 
+			out.writeUTF("teleport");
+			out.writeInt(x);
+			out.writeInt(y);
+			
+			for (Player p : Server.getServer().getPlayers()) {
+				DataOutputStream pOut = new DataOutputStream(p.getSocket().getOutputStream());
+				
+				pOut.writeUTF("posUpdate");
+				pOut.writeUTF(this.getName());
+				pOut.writeInt(x);							
+				pOut.writeInt(y);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * @return the socket
 	 */
