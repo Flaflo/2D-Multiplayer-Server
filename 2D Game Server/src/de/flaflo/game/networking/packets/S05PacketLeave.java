@@ -4,8 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import de.flaflo.game.server.Server;
-import de.flaflo.game.server.entity.Player;
+import de.flaflo.game.networking.Server;
+import de.flaflo.game.networking.entity.Player;
 
 public class S05PacketLeave extends Packet {
 

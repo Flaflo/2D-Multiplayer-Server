@@ -1,4 +1,4 @@
-package de.flaflo.game.server;
+package de.flaflo.game.networking;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,11 +9,11 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import de.flaflo.game.networking.entity.Player;
 import de.flaflo.game.networking.packets.Packet;
 import de.flaflo.game.networking.packets.S01PacketLogin;
 import de.flaflo.game.networking.packets.S02PacketPlayerList;
 import de.flaflo.game.networking.packets.S03PacketAddPlayer;
-import de.flaflo.game.server.entity.Player;
 import sun.util.calendar.CalendarUtils;
 
 /**

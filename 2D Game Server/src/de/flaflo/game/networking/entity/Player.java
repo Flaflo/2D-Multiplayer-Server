@@ -1,4 +1,4 @@
-package de.flaflo.game.server.entity;
+package de.flaflo.game.networking.entity;
 
 import java.awt.Color;
 import java.io.DataInputStream;
@@ -6,9 +6,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import de.flaflo.game.networking.Server;
 import de.flaflo.game.networking.packets.S04PacketPosition;
 import de.flaflo.game.networking.packets.S05PacketLeave;
-import de.flaflo.game.server.Server;
 
 public class Player implements Runnable {
 

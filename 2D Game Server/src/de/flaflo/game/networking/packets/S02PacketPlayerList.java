@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import de.flaflo.game.server.entity.Player;
+import de.flaflo.game.networking.entity.Player;
 
 public class S02PacketPlayerList extends Packet {
 
