@@ -20,6 +20,7 @@ public class S03PacketAddPlayer extends Packet {
 	public void send(DataOutputStream out) throws IOException {
 		out.writeByte(id);
 		out.writeUTF(player.getName());
+		out.writeInt(player.getId());
 		out.writeInt(player.getX());
 		out.writeInt(player.getY());
 

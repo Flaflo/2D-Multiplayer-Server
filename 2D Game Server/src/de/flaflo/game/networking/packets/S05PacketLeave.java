@@ -19,14 +19,14 @@ public class S05PacketLeave extends Packet {
 	@Override
 	public void send(DataOutputStream out) throws IOException {
 		out.writeByte(id);
-		out.writeUTF(player.getName());
+		out.writeInt(player.getId());
 	}
 
 	@Override
 	public void receive(DataInputStream in) throws IOException {
-		String name = in.readUTF();
+		int id = in.readInt();
 		
-		this.setPlayer(Server.getServer().getPlayerByName(name));
+		this.setPlayer(Server.getServer().getPlayerByID(id));
 	}
 	
 	/**

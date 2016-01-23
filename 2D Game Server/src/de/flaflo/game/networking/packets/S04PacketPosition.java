@@ -25,7 +25,7 @@ public class S04PacketPosition extends Packet {
 	@Override
 	public void send(DataOutputStream out) throws IOException {
 		out.writeByte(id);
-		out.writeUTF(player.getName());
+		out.writeInt(player.getId());
 		out.writeInt(x);
 		out.writeInt(y);
 	}

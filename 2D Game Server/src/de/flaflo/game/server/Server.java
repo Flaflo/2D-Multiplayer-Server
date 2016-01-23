@@ -18,12 +18,6 @@ import sun.util.calendar.CalendarUtils;
 
 /**
  * 			  TODO
- * 		</br>
- * 		 • Packet System</br>
- *  		- Packet IDs</br>
- *  		- Sending Packet Objects</br>
- *  		- Packet Receive Events</br>
- * 		</br>
  * 		 • Player IDs
  * 		</br>
  * @author Flaflo
@@ -39,10 +33,6 @@ public class Server implements Runnable {
 	private CopyOnWriteArrayList<Player> players;
 	
 	private static Server instance;
-	
-	public static Server getServer() {
-		return instance;
-	}
 	
 	public static final int PORT = 1338;
 
@@ -67,6 +57,16 @@ public class Server implements Runnable {
 		return null;
 	}
 	
+	public Player getPlayerByID(int id) {
+		for (Player p : this.players) {
+			if (p.getId() == id) {
+				return p;
+			}
+		}
+		
+		return null;
+	}
+	
 	public synchronized void start() throws IOException {
 		if (socket == null)
 			socket = new ServerSocket(PORT);
@@ -84,12 +84,12 @@ public class Server implements Runnable {
 				
 				S01PacketLogin loginPacket = new S01PacketLogin();
 				loginPacket.receive(new DataInputStream(soc.getInputStream()));
-				Player player = new Player(soc, loginPacket.getName(), loginPacket.getColor(), loginPacket.getX(), loginPacket.getY());
+				Player player = new Player((players.isEmpty() ? 0 : players.size() + 1), soc, loginPacket.getName(), loginPacket.getColor(), loginPacket.getX(), loginPacket.getY());
 				
 				this.sendPacket(player, new S02PacketPlayerList(this.players.toArray(new Player[this.players.size()])));
 				this.sendPacketToAll(new S03PacketAddPlayer(player));
 				
-				Server.getServer().getPlayers().add(player);
+				players.add(player);
 				log(player.getName() + " betritt das Spiel");
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -121,6 +121,10 @@ public class Server implements Runnable {
 	    CalendarUtils.sprintf0d(sb, date.getSeconds(), 2);
 	    
 		System.out.println("{[" + sb.toString() + "] Server}: " + text);
+	}
+	
+	public static Server getServer() {
+		return instance;
 	}
 	
 	public CopyOnWriteArrayList<Player> getPlayers() {

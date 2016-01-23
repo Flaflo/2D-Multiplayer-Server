@@ -21,6 +21,7 @@ public class S02PacketPlayerList extends Packet {
 
 		for (Player p : players) {
 			out.writeUTF(p.getName());
+			out.writeInt(p.getId());
 			out.writeInt(p.getX());
 			out.writeInt(p.getY());
 			

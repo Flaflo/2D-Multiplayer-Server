@@ -22,7 +22,11 @@ public class Player implements Runnable {
 	private int x, y;
 	private Color color;
 
-	public Player(Socket socket, String name, Color color, int x, int y) {
+	private int id;
+	
+	public Player(int id, Socket socket, String name, Color color, int x, int y) {
+		this.id = id;
+		
 		this.socket = socket;
 
 		this.name = name;
@@ -66,37 +70,8 @@ public class Player implements Runnable {
 
 				Server.getServer().sendPacketToAll(new S05PacketLeave(this));
 				
-				Server.log(this.getName() + " hat das Spiel verlassen.");
+				Server.log(this.getName() + " left the Game");
 			}
-		}
-	}
-
-	/**
-	 * Teleportiert einen Spieler an eine Position
-	 * 
-	 * @param x
-	 *            X Positions des Teleports
-	 * @param y
-	 *            Y Positions des Teleports
-	 */
-	public void teleport(int x, int y) {
-		try {
-			DataOutputStream out = new DataOutputStream(getSocket().getOutputStream());
-
-			out.writeUTF("teleport");
-			out.writeInt(x);
-			out.writeInt(y);
-
-			for (Player p : Server.getServer().getPlayers()) {
-				DataOutputStream pOut = new DataOutputStream(p.getSocket().getOutputStream());
-
-				pOut.writeUTF("posUpdate");
-				pOut.writeUTF(this.getName());
-				pOut.writeInt(x);
-				pOut.writeInt(y);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -169,5 +144,26 @@ public class Player implements Runnable {
 	 */
 	public boolean isRunning() {
 		return isRunning;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param color the color to set
+	 */
+	public void setColor(Color color) {
+		this.color = color;
 	}
 }
