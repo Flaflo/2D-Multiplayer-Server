@@ -1,6 +1,5 @@
 package de.flaflo.game.server;
 
-import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,9 +7,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import de.flaflo.game.networking.packets.Packet;
+import de.flaflo.game.networking.packets.S01PacketLogin;
+import de.flaflo.game.networking.packets.S02PacketPlayerList;
+import de.flaflo.game.networking.packets.S03PacketAddPlayer;
 import de.flaflo.game.server.entity.Player;
 import sun.util.calendar.CalendarUtils;
 
@@ -50,38 +52,7 @@ public class Server implements Runnable {
 		instance = this;
 		
 		players = new CopyOnWriteArrayList<Player>();
-		
-		new Thread() {
-			@SuppressWarnings("resource")
-			@Override
-			public void run() {
-				while (true) {
-					Scanner scanner = new Scanner(System.in);
-					String line = scanner.nextLine();
-					String[] args = line.split(" ");
 
-					if (line.startsWith("teleport")) {
-						if (args.length != 4) {
-							log("Richtige Syntax: teleport <Spielername> <X> <Y>");
-							return;
-						}
-						try {
-							Player targetPlayer = getPlayerByName(args[1]);
-							
-							if (targetPlayer == null) {
-								log("Spieler konnte nicht gefunden werden.");
-								return;
-							}
-							
-							targetPlayer.teleport(Integer.parseInt(args[2]), Integer.parseInt(args[3]));
-						} catch (Exception ex) {
-							log("Ungültige Zeichen erkannt.");
-						}
-					} else
-						log("Diesen Command kenne ich nicht.");
-				}
-			}
-		}.start();
 		
 		this.start();
 	}
@@ -111,49 +82,32 @@ public class Server implements Runnable {
 			try {
 				Socket soc = socket.accept();
 				
-				DataOutputStream out = new DataOutputStream(soc.getOutputStream());
-				DataInputStream in = new DataInputStream(soc.getInputStream());
-
-				String name = in.readUTF();
-				int x = in.readInt();
-				int y = in.readInt();
+				S01PacketLogin loginPacket = new S01PacketLogin();
+				loginPacket.receive(new DataInputStream(soc.getInputStream()));
+				Player player = new Player(soc, loginPacket.getName(), loginPacket.getColor(), loginPacket.getX(), loginPacket.getY());
 				
-				int cRed = in.readInt();
-				int cGreen = in.readInt();
-				int cBlue = in.readInt();
-
-				out.writeInt(this.players.size());
-
-				for (Player p : this.players) {
-					out.writeUTF(p.getName());
-					out.writeInt(p.getX());
-					out.writeInt(p.getY());
-					
-					out.writeInt(p.getColor().getRed());
-					out.writeInt(p.getColor().getGreen());
-					out.writeInt(p.getColor().getBlue());
-				}
+				this.sendPacket(player, new S02PacketPlayerList(this.players.toArray(new Player[this.players.size()])));
+				this.sendPacketToAll(new S03PacketAddPlayer(player));
 				
-				for (Player p : this.players) {
-					DataOutputStream pOut = new DataOutputStream(p.getSocket().getOutputStream());
-					
-					pOut.writeUTF("addPlayer");
-					pOut.writeUTF(name);
-					pOut.writeInt(x);
-					pOut.writeInt(y);
-					
-					pOut.writeInt(cRed);
-					pOut.writeInt(cGreen);
-					pOut.writeInt(cBlue);
-				}
-				
-				this.players.add(new Player(soc, name, new Color(cRed, cGreen, cBlue), x, y));
-				
-				log(name + " betritt das Spiel");
+				Server.getServer().getPlayers().add(player);
+				log(player.getName() + " betritt das Spiel");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void sendPacket(Player player, Packet packet) {
+		try {
+			packet.send(new DataOutputStream(player.getSocket().getOutputStream()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void sendPacketToAll(Packet packet) {
+		for (Player player : this.players)
+			sendPacket(player, packet);
 	}
 
 	@SuppressWarnings("deprecation")

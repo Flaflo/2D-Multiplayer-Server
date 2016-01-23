@@ -6,6 +6,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import de.flaflo.game.networking.packets.S04PacketPosition;
+import de.flaflo.game.networking.packets.S05PacketLeave;
 import de.flaflo.game.server.Server;
 
 public class Player implements Runnable {
@@ -15,21 +17,21 @@ public class Player implements Runnable {
 	private Thread innerThread;
 
 	private boolean isRunning;
-	
+
 	private String name;
 	private int x, y;
 	private Color color;
 
 	public Player(Socket socket, String name, Color color, int x, int y) {
 		this.socket = socket;
-		
+
 		this.name = name;
-		
+
 		this.color = color;
-		
+
 		this.x = x;
 		this.y = y;
-		
+
 		innerThread = new Thread(this);
 		innerThread.start();
 	}
@@ -44,50 +46,38 @@ public class Player implements Runnable {
 				DataInputStream in = new DataInputStream(socket.getInputStream());
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-				String desire = in.readUTF();
+				byte id = in.readByte();
 
-				switch (desire) {
-					case "posUpdate":
-					int x = in.readInt();
-					int y = in.readInt();
+				switch (id) {
+				case 4:
+					S04PacketPosition posPacket = new S04PacketPosition();
+					posPacket.receive(in);
+
+					this.setX(posPacket.getX());
+					this.setY(posPacket.getY());
 					
-					this.setX(x);
-					this.setY(y);
-
-					for (Player p : Server.getServer().getPlayers()) {
-						DataOutputStream pOut = new DataOutputStream(p.getSocket().getOutputStream());
-						
-						pOut.writeUTF("posUpdate");
-						pOut.writeUTF(this.getName());
-						pOut.writeInt(x);							
-						pOut.writeInt(y);
-					}
-
+					Server.getServer().sendPacketToAll(new S04PacketPosition(this, this.getX(), this.getY()));
+					
 					break;
 				}
 			} catch (IOException e) {
 				this.isRunning = false;
 				Server.getServer().getPlayers().remove(this);
 
-				for (Player p : Server.getServer().getPlayers()) {
-					try {
-						DataOutputStream out = new DataOutputStream(p.getSocket().getOutputStream());
-						out.writeUTF("removePlayer");
-						out.writeUTF(this.getName());
-						
-						Server.log(this.getName() + " hat das Spiel verlassen.");
-					} catch (IOException e1) {
-						Server.log(this.getName() + " hat das Spiel verlassen.");
-					}
-				}
+				Server.getServer().sendPacketToAll(new S05PacketLeave(this));
+				
+				Server.log(this.getName() + " hat das Spiel verlassen.");
 			}
 		}
 	}
-	
+
 	/**
 	 * Teleportiert einen Spieler an eine Position
-	 * @param x X Positions des Teleports
-	 * @param y Y Positions des Teleports
+	 * 
+	 * @param x
+	 *            X Positions des Teleports
+	 * @param y
+	 *            Y Positions des Teleports
 	 */
 	public void teleport(int x, int y) {
 		try {
@@ -96,20 +86,20 @@ public class Player implements Runnable {
 			out.writeUTF("teleport");
 			out.writeInt(x);
 			out.writeInt(y);
-			
+
 			for (Player p : Server.getServer().getPlayers()) {
 				DataOutputStream pOut = new DataOutputStream(p.getSocket().getOutputStream());
-				
+
 				pOut.writeUTF("posUpdate");
 				pOut.writeUTF(this.getName());
-				pOut.writeInt(x);							
+				pOut.writeInt(x);
 				pOut.writeInt(y);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * @return the socket
 	 */
@@ -118,7 +108,8 @@ public class Player implements Runnable {
 	}
 
 	/**
-	 * @param socket the socket to set
+	 * @param socket
+	 *            the socket to set
 	 */
 	public void setSocket(Socket socket) {
 		this.socket = socket;
@@ -132,7 +123,8 @@ public class Player implements Runnable {
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -146,7 +138,8 @@ public class Player implements Runnable {
 	}
 
 	/**
-	 * @param x the x to set
+	 * @param x
+	 *            the x to set
 	 */
 	public void setX(int x) {
 		this.x = x;
@@ -160,7 +153,8 @@ public class Player implements Runnable {
 	}
 
 	/**
-	 * @param y the y to set
+	 * @param y
+	 *            the y to set
 	 */
 	public void setY(int y) {
 		this.y = y;
@@ -169,7 +163,7 @@ public class Player implements Runnable {
 	public Color getColor() {
 		return color;
 	}
-	
+
 	/**
 	 * @return the isRunning
 	 */
