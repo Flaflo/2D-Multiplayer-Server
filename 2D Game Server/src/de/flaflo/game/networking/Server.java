@@ -17,9 +17,7 @@ import de.flaflo.game.networking.packets.S03PacketAddPlayer;
 import sun.util.calendar.CalendarUtils;
 
 /**
- * 			  TODO
- * 		 • Player IDs
- * 		</br>
+ * 
  * @author Flaflo
  *
  */
@@ -43,7 +41,6 @@ public class Server implements Runnable {
 		
 		players = new CopyOnWriteArrayList<Player>();
 
-		
 		this.start();
 	}
 
@@ -80,7 +77,9 @@ public class Server implements Runnable {
 	
 	public void sendPacket(Player player, Packet packet) {
 		try {
-			packet.send(new DataOutputStream(player.getSocket().getOutputStream()));
+			DataOutputStream out = new DataOutputStream(player.getSocket().getOutputStream());
+			packet.send(out);
+			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
