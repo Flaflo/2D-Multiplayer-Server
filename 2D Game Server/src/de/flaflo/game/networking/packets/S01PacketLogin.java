@@ -12,6 +12,8 @@ public class S01PacketLogin extends Packet {
 	
 	private int x, y;
 	
+	private int mass;
+	
 	public S01PacketLogin() {
 		super((byte) 1);
 	}
@@ -33,6 +35,8 @@ public class S01PacketLogin extends Packet {
 		int cRed = in.readInt();
 		int cGreen = in.readInt();
 		int cBlue = in.readInt();
+		
+		this.setMass(in.readInt());
 		
 		this.setColor(new Color(cRed, cGreen, cBlue));
 	}
@@ -91,5 +95,19 @@ public class S01PacketLogin extends Packet {
 	 */
 	public void setY(int y) {
 		this.y = y;
+	}
+
+	/**
+	 * @return the mass
+	 */
+	public int getMass() {
+		return mass;
+	}
+
+	/**
+	 * @param mass the mass to set
+	 */
+	public void setMass(int mass) {
+		this.mass = mass;
 	}
 }

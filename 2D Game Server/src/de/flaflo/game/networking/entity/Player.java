@@ -24,7 +24,9 @@ public class Player implements Runnable {
 
 	private int id;
 	
-	public Player(int id, Socket socket, String name, Color color, int x, int y) {
+	private int mass;
+	
+	public Player(int id, Socket socket, String name, Color color, int mass, int x, int y) {
 		this.id = id;
 		
 		this.socket = socket;
@@ -36,6 +38,8 @@ public class Player implements Runnable {
 		this.x = x;
 		this.y = y;
 
+		this.mass = mass;
+		
 		innerThread = new Thread(this);
 		innerThread.start();
 	}
@@ -165,5 +169,19 @@ public class Player implements Runnable {
 	 */
 	public void setColor(Color color) {
 		this.color = color;
+	}
+
+	/**
+	 * @return the mass
+	 */
+	public int getMass() {
+		return mass;
+	}
+
+	/**
+	 * @param mass the mass to set
+	 */
+	public void setMass(int mass) {
+		this.mass = mass;
 	}
 }

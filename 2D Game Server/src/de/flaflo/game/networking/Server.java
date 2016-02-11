@@ -61,7 +61,7 @@ public class Server implements Runnable {
 				
 				S01PacketLogin loginPacket = new S01PacketLogin();
 				loginPacket.receive(new DataInputStream(soc.getInputStream()));
-				Player player = new Player((players.isEmpty() ? 0 : players.size() + 1), soc, loginPacket.getName(), loginPacket.getColor(), loginPacket.getX(), loginPacket.getY());
+				Player player = new Player((players.isEmpty() ? 0 : players.size() + 1), soc, loginPacket.getName(), loginPacket.getColor(), loginPacket.getMass(), loginPacket.getX(), loginPacket.getY());
 				
 				this.sendPacket(player, new S02PacketPlayerList(this.players.toArray(new Player[this.players.size()])));
 				this.sendPacketToAll(new S03PacketAddPlayer(player));
